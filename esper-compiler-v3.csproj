@@ -44,10 +44,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\Lexer.cs" />
+    <Compile Include="src\Node.cs" />
+    <Compile Include="src\Parser.cs" />
     <Compile Include="src\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\Token.cs" />
     <Compile Include="src\TokenType.cs" />
+    <Compile Include="src\VariableInfo.cs" />
+    <Compile Include="src\VariableType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
