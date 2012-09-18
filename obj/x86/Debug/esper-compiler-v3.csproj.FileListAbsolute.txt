@@ -1,5 +1,0 @@
-C:\Users\Alex\Dropbox\CleaningSection\esper-compiler-v3\esper-compiler-v3\obj\x86\Debug\ResolveAssemblyReference.cache
-C:\Users\Alex\Dropbox\CleaningSection\esper-compiler-v3\esper-compiler-v3\bin\Debug\esper-compiler-v3.exe
-C:\Users\Alex\Dropbox\CleaningSection\esper-compiler-v3\esper-compiler-v3\bin\Debug\esper-compiler-v3.pdb
-C:\Users\Alex\Dropbox\CleaningSection\esper-compiler-v3\esper-compiler-v3\obj\x86\Debug\esper-compiler-v3.exe
-C:\Users\Alex\Dropbox\CleaningSection\esper-compiler-v3\esper-compiler-v3\obj\x86\Debug\esper-compiler-v3.pdb
