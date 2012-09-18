@@ -9,6 +9,7 @@ namespace esper_compiler_v3.src
     {
         Integer,
         Boolean,
-        String
+        String,
+        Unknown
     }
 }

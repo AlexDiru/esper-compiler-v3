@@ -83,6 +83,8 @@ namespace esper_compiler_v3.src
             {
                 while (!GetSourceChar().Equals('\n'))
                     SourceIndex++;
+
+                CurrentLine++;
             }
         }
 
@@ -186,6 +188,7 @@ namespace esper_compiler_v3.src
 
             if (GetSourceChar().Equals('\n'))
             {
+                CurrentLine++;
                 nextToken = new Token();
                 nextToken.Type = TokenType.EOL;
                 nextToken.Line = CurrentLine - 1;
@@ -204,7 +207,7 @@ namespace esper_compiler_v3.src
             {
                 nextToken = GetStringToken();
             }
-            else if ("{}.,;*&[]<>=!+-/?".Contains(GetSourceChar()))
+            else if ("(){}.,;*&[]<>=!+-/?".Contains(GetSourceChar()))
             {
                 nextToken = GetSymbolToken();
             }
