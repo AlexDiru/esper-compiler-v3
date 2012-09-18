@@ -27,7 +27,7 @@ namespace esper_compiler_v3.src
             //the last token
             Source += " 3";
 
-            //Loop until end of tokens
+            //Loop until end of tokens - which will cause an exception so catch it
             try
             {
                 while (true)
@@ -141,6 +141,7 @@ namespace esper_compiler_v3.src
 
             token.Value += GetSourceChar();
 
+            //In case of <=, >=, == or != we have two characters as token
             if ((GetSourceChar().Equals('<') || GetSourceChar().Equals('>') ||
                  GetSourceChar().Equals('!') || GetSourceChar().Equals('='))
                 && GetNextSourceChar().Equals('='))
