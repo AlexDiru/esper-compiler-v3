@@ -7,10 +7,13 @@ namespace esper_compiler_v3.src
 {
     class Token
     {
-        public String Value;
+        public String Value = String.Empty;
         public TokenType Type;
         public Int32 Line;
 
+        /// <summary>
+        /// Prints the token (helps with debugging)
+        /// </summary>
         public void Print()
         {
             String output = "";

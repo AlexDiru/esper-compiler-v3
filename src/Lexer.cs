@@ -18,10 +18,16 @@ namespace esper_compiler_v3.src
             Source = code;
         }
 
+        /// <summary>
+        /// Converts the input code into tokens
+        /// </summary>
         public void Analyse()
         {
+            //Have to append an extra token otherwise it doesn't analsyse
+            //the last token
             Source += " 3";
 
+            //Loop until end of tokens
             try
             {
                 while (true)
@@ -32,11 +38,17 @@ namespace esper_compiler_v3.src
             }
         }
 
+        /// <summary>
+        /// Gets the current character of the source
+        /// </summary>
         private char GetSourceChar()
         {
             return Source[SourceIndex];
         }
 
+        /// <summary>
+        /// Gets the next characters of the source
+        /// </summary>
         private char GetNextSourceChar()
         {
             if (SourceIndex + 1 < Source.Length)
@@ -50,8 +62,12 @@ namespace esper_compiler_v3.src
             }
         }
 
+        /// <summary>
+        /// Keeps spaces, tabs and comments
+        /// </summary>
         private void SkipWhitespace()
         {
+            //Skip spaces until a new character
             while (GetSourceChar().Equals(' '))
             {
                 if (GetSourceChar().Equals('\n'))
@@ -62,6 +78,7 @@ namespace esper_compiler_v3.src
                 SourceIndex++;
             }
 
+            //Skip the rest of the line if a comment is detected
             if (GetSourceChar().Equals('/') && GetNextSourceChar().Equals('/'))
             {
                 while (!GetSourceChar().Equals('\n'))
@@ -69,6 +86,9 @@ namespace esper_compiler_v3.src
             }
         }
 
+        /// <summary>
+        /// Gets the number type of token
+        /// </summary>
         private Token GetNumberToken()
         {
             Token token = new Token();
@@ -84,20 +104,26 @@ namespace esper_compiler_v3.src
             return token;
         }
 
+        /// <summary>
+        /// Gets the string type of token
+        /// </summary>
         private Token GetStringToken()
         {
+            //Skip the first quote mark
             SourceIndex++;
 
             Token token = new Token();
 
             do
             {
+                //Can't EOL in middle of string
                 if (GetSourceChar().Equals('\n'))
                     Console.WriteLine("Error - expected ending quotation mark");
 
                 token.Value += GetSourceChar();
                 SourceIndex++;
             }
+            //Scan until end quote mark
             while (!GetSourceChar().Equals('\"'));
 
             SourceIndex++;
@@ -106,6 +132,9 @@ namespace esper_compiler_v3.src
             return token;
         }
 
+        /// <summary>
+        /// Gets the symbol type of token
+        /// </summary>
         private Token GetSymbolToken()
         {
             Token token = new Token();
@@ -126,6 +155,9 @@ namespace esper_compiler_v3.src
             return token;
         }
 
+        /// <summary>
+        /// Get the identifier type of token
+        /// </summary>
         private Token GetIdentifierToken()
         {
             Token token = new Token();
@@ -141,13 +173,12 @@ namespace esper_compiler_v3.src
             return token;
         }
 
-        private Boolean IsPunctuation(Char c)
-        {
-            return !(Char.IsLetterOrDigit(c) || c.Equals(' '));
-        }
-
+        /// <summary>
+        /// Reads the next token from the code
+        /// </summary>
         private Token ReadNextToken()
         {
+            //Skip redundant data
             SkipWhitespace();
 
             Token nextToken = null;
