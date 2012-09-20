@@ -7,16 +7,25 @@ namespace esper_compiler_v3.src
 {
     class Lexer
     {
+        /// <summary>
+        /// The list of tokens the lexer will produce from the input code
+        /// </summary>
         public List<Token> Tokens = new List<Token>();
+
+        /// <summary>
+        /// The source code the lexer will analyse
+        /// </summary>
         public String Source = String.Empty;
 
+        /// <summary>
+        /// The character of the source the lexer is analysing
+        /// </summary>
         private Int32 SourceIndex = 0;
+        
+        /// <summary>
+        /// The current line of the source the lexer is analysing
+        /// </summary>
         private Int32 CurrentLine = 1;
-
-        public void SetCode(String code)
-        {
-            Source = code;
-        }
 
         /// <summary>
         /// Converts the input code into tokens
