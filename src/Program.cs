@@ -11,7 +11,7 @@ namespace esper_compiler_v3.src
         {
             Lexer lexer = new Lexer();
 		    //lexer.source = "bool b\nb=2+6==3/2\nbool c\nc=b\nbool d\nd=c==1\n";
-		    lexer.Source = "bool a\na = 6 + 7-90*3/3+4 <=1-(4*7--9+21*3)+33-093+22/9";
+		    lexer.Source = "bool a\na = 6 + 7-90*3/3+4 <=1-(4*7--9+21*3)+33-093+22/9\nbool b\nb=a\n";
 		
 		    Console.WriteLine("-Code-");
 		    Console.WriteLine(lexer.Source);

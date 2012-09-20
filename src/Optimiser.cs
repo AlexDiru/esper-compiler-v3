@@ -10,8 +10,14 @@ namespace esper_compiler_v3.src
     /// </summary>
     class Optimiser
     {
+        /// <summary>
+        /// The root node of the parse tree (output from parser)
+        /// </summary>
         public Node Root;
 
+        /// <summary>
+        /// Optimises the parse tree
+        /// </summary>
         public void Optimise()
         {
             OptimiseOperatorsAndValues();
@@ -77,6 +83,9 @@ namespace esper_compiler_v3.src
             OptimiseConditionalsOfNode(Root);
         }
 
+        /// <summary>
+        /// Traverses the tree in post-order (bottom-up) and optimises any conditions
+        /// </summary>
         private void OptimiseConditionalsOfNode(Node currentNode)
         {
             if (currentNode.Left != null)
