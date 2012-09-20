@@ -87,5 +87,30 @@ namespace esper_compiler_v3.src
 
             return clone;
         }
+
+        /// <summary>
+        /// Outputs the parse tree in a readable format
+        /// </summary>
+        public static void DisplayTree(Node node, String inner)
+        {
+            if (node == null)
+                return;
+
+            Console.Write(inner + ">" + node.Value);
+
+            String Attrib = "";
+
+            foreach (String Attribute in node.Attributes)
+                if (Attribute != "")
+                    Attrib += " " + Attribute;
+
+            if (Attrib != "")
+                Console.Write("  (Attributes: " + Attrib + ")");
+
+            Console.Write("\n");
+
+            DisplayTree(node.Left, inner + "-");
+            DisplayTree(node.Right, inner + "-");
+        }
     }
 }

@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="src\Lexer.cs" />
     <Compile Include="src\Node.cs" />
+    <Compile Include="src\Optimiser.cs" />
     <Compile Include="src\Parser.cs" />
     <Compile Include="src\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

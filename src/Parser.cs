@@ -37,7 +37,7 @@ namespace esper_compiler_v3.src
         /// <summary>
         /// The root node of the parse tree
         /// </summary>
-        private Root RootNode;
+        public Root RootNode;
 
         /// <summary>
         /// The number of lines of code
@@ -519,36 +519,11 @@ namespace esper_compiler_v3.src
         }
 
         /// <summary>
-        /// Outputs the parse tree in a readable format
-        /// </summary>
-        private void displayTree(Node node, String inner) 
-        {
-		    if (node == null)
-			    return;
-		
-		    Console.Write(inner + ">" + node.Value);
-		
-		    String Attrib = "";
-		
-		    foreach (String Attribute in node.Attributes)
-			    if (Attribute != "")
-				    Attrib += " " + Attribute;
-				
-		    if (Attrib != "")
-			    Console.Write("  (Attributes: " + Attrib + ")");
-		
-		    Console.Write("\n");
-		
-		    displayTree(node.Left, inner + "-");
-		    displayTree(node.Right, inner + "-");
-	    }
-
-        /// <summary>
         /// Displays the output of the parser
         /// </summary>
         public void DisplayOutput()
         {
-            displayTree(RootNode, "");
+            Node.DisplayTree(RootNode, "");
         }
     }
 }
