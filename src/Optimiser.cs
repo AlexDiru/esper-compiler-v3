@@ -25,9 +25,9 @@ namespace esper_compiler_v3.src
         }
 
         /// <summary>
+        /// Optimises the following:
         /// 3 + 2 * a ==> 5 * a
         /// b = 7(8/4) ==> b = 14
-        /// Currently only checks a node's child nodes (doesn;t go deeper)
         /// </summary>
         private void OptimiseOperatorsAndValues()
         {
@@ -76,7 +76,9 @@ namespace esper_compiler_v3.src
         }
 
         /// <summary>
+        /// Optimises the following
         /// b = 31 == 19 => b = 1
+        /// b = 12 >= 13 => b = 0
         /// </summary>
         private void OptimiseConditionals()
         {
@@ -122,12 +124,6 @@ namespace esper_compiler_v3.src
                     currentNode.Right = null;
                 }
             }
-        }
-
-        /// <summary>
-        /// </summary>
-        private void OptimiseVariableNames()
-        {
         }
     }
 }

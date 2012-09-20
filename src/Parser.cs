@@ -460,7 +460,7 @@ namespace esper_compiler_v3.src
         /// <summary>
         /// Parse a new statement
         /// </summary>
-        private Node parseStatement(Node node) 
+        private Node ParseStatement(Node node) 
         {
 		
 		    //Call appropriate parse function according to first Token in the statement
@@ -506,12 +506,12 @@ namespace esper_compiler_v3.src
 
                     if (line == LineCount - 1)
                     {
-                        currentNode = parseStatement(currentNode);
+                        currentNode = ParseStatement(currentNode);
                         RootNode.InsertFinal(currentNode);
                     }
                     else
                     {
-                        RootNode.Insert("STATEMENTS", parseStatement(currentNode));
+                        RootNode.Insert("STATEMENTS", ParseStatement(currentNode));
                     }
                 }
 

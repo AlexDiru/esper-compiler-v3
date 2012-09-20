@@ -5,7 +5,10 @@ using System.Text;
 
 namespace esper_compiler_v3.src
 {
-    enum VariableType
+    /// <summary>
+    /// The types of variables that are implemented
+    /// </summary>
+    public enum VariableType
     {
         Integer,
         Boolean,
