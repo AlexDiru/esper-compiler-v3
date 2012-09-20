@@ -24,18 +24,24 @@ namespace esper_compiler_v3.src
         /// </summary>
         private void OptimiseOperatorsAndValues()
         {
-            //Iterate through tree, if operator is found, recursively optimise children
-            Node currentNode = Root;
-            Node parentNode = null;
-
-            //Nodes found which are operator nodes (so the child nodes know)
-            List<Node> operatorNodes = new List<Node>();
-
             OptimiseOperatorsAndValuesOfNode(Root);
         }
 
+        /// <summary>
+        /// Traverses the tree in post-order (bottom-up) and optimises any arithmetic
+        /// </summary>
         private void OptimiseOperatorsAndValuesOfNode(Node currentNode)
         {
+            if (currentNode.Left != null)
+            {
+                OptimiseOperatorsAndValuesOfNode(currentNode.Left);
+            }
+
+            if (currentNode.Right != null)
+            {
+                OptimiseOperatorsAndValuesOfNode(currentNode.Right);
+            }
+
             if ("+-*/".Contains(currentNode.Value))
             {
                 //If left node and right node are both values
@@ -54,22 +60,11 @@ namespace esper_compiler_v3.src
                     else
                         currentNode.Value = (leftValue / rightValue).ToString();
 
-                    currentNode.Attributes[0] = "INT";
-                    currentNode.Attributes[1] = currentNode.Attributes[2] = "";
+                    currentNode.Attributes[1] = "VALUE";
+                    currentNode.Attributes[0] = currentNode.Attributes[2] = "";
                     currentNode.Left = null;
                     currentNode.Right = null;
                 }
-                //operatorNodes.Add(currentNode);
-            }
-
-            if (currentNode.Left != null)
-            {
-                OptimiseOperatorsAndValuesOfNode(currentNode.Left);
-            }
-
-            if (currentNode.Right != null)
-            {
-                OptimiseOperatorsAndValuesOfNode(currentNode.Right);
             }
         }
     }
