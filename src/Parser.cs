@@ -102,16 +102,26 @@ namespace esper_compiler_v3.src
             Keywords.Add("INPUT");
         }
 
+        /// <summary>
+        /// Checks the variable list to see if a name already exists
+        /// </summary>
         public Boolean VariableExists(String name)
         {
             return Variables.Any(v => v.Name.Equals(name));
         }
 
+        /// <summary>
+        /// Gets the type of the given variable name
+        /// </summary>
         private VariableType GetVariableType(String name)
         {
             return Variables.Where(v => v.Name.Equals(name)).First().Type;
         }
 
+        /// <summary>
+        /// Checks if a name is valid for a variable
+        /// It can't be a keyword or the name of an already declared variable
+        /// </summary>
         private Boolean IsNewVariableNameInvalid(String name)
         {
             if (Keywords.Contains(name))
@@ -120,25 +130,41 @@ namespace esper_compiler_v3.src
             return VariableExists(name);
         }
 
+        /// <summary>
+        /// Shows an error message if there are no tokens left to parse
+        /// </summary>
         private void CheckIfOutOfTokens()
         {
             if (TokenIndex >= Tokens.Count)
                 Console.WriteLine("Error - program ended unexpectedly");
         }
 
+        /// <summary>
+        /// Parse a facor in an expression
+        /// EBNF: <factor> ::= <IDENTIFIER> | <CONSTANT> | ( ‘(’, <expression>, ‘)’ ) | ( '-', <factor> );
+        /// We need to have the node where the factor is to be held
+        /// A the type so we know whether we are expecting an int or a string
+        /// </summary>
         private Node ParseFactor(Node node, VariableType type)
         {
+            //Check if we have any tokens left
             CheckIfOutOfTokens();
 
+
+            //First check for a parenthesised expression
+            //( ‘(’, <expression>, ‘)’ )
             if (GetCurrentToken().Value.Equals("("))
             {
+                //Skip the parenthesis
                 TokenIndex++;
 
+                //Get the expression
                 node = ParseExpression(node, type);
 
                 if (!GetCurrentToken().Value.Equals(")"))
                     Console.WriteLine("Expected closing bracket");
 
+                //Skip the closing paren
                 TokenIndex++;
 
                 return node;
@@ -160,13 +186,17 @@ namespace esper_compiler_v3.src
                 }
             }
 
+            //We have narrowed it down to either a <IDENTIFIER> or <CONSTANT>
             node = new Node();
 
+            //Store the value in the node
             node.Value = GetCurrentToken().Value;
 
+            //Semantics - check if variable exists
             if (GetCurrentToken().Type.Equals(TokenType.Identifier) && !VariableExists(GetCurrentToken().Value))
                 Console.WriteLine("Undeclared variable");
 
+            //Give the node extra info to aid in code gen
             if (GetCurrentToken().Type.Equals(TokenType.Identifier))
                 node.Attributes[0] = "VARIABLE";
             else
@@ -177,12 +207,19 @@ namespace esper_compiler_v3.src
             return node;
         }
 
+        /// <summary>
+        /// To parse a term in the epression
+        /// In EBNF: <term> ::= <factor>, { ‘*’|’/’, <factor> };
+        /// </summary>
         private Node ParseTerm(Node node)
         {
             CheckIfOutOfTokens();
 
+            //Parse the first factor
             node = ParseFactor(node, VariableType.Integer);
 
+            //Then the {...}
+            //For each * or / parse another factor
             while (GetCurrentToken().Value.Equals("*") || GetCurrentToken().Value.Equals("/"))
             {
                 Node clonedNode = node.Clone();
@@ -195,35 +232,53 @@ namespace esper_compiler_v3.src
             return node;
         }
 
+        /// <summary>
+        /// Parses a condition
+        /// EBNF: <condition> ::= <expression> | <expression> '==' <expression>
+        /// </summary>
         private Node ParseCondition(Node node)
         {
             node = new Node();
             node.Value = "CONDITION";
 
+            //LHS of condition
             node.Left = ParseExpression(node, VariableType.Integer);
 
+            //Check for anything that isn't a variable or value
+            //If we don't find either, the condition has been parsed
             if (!GetCurrentToken().Type.Equals(TokenType.Identifier) && !GetCurrentToken().Type.Equals(TokenType.Number)
                 && !IsConditionalOperator(GetCurrentToken().Value))
                 return node;
 
+            //Get the equality comparators
             node.Attributes[0] = GetCurrentToken().Value;
 
             TokenIndex++;
-
+        
+            //Get the RHS of the condition
             node.Right = ParseExpression(node, VariableType.Integer);
 
             return node;
         }
 
+        /// <summary>
+        /// Checks if a given string is a conditional operator
+        /// </summary>
         private bool IsConditionalOperator(string str)
         {
             return str.Equals("==") || str.Equals(">=") || str.Equals("<=") || str.Equals("!=");
         }
 
+        /// <summary>
+        /// To parse the expression
+        /// In EBNF: <expression> ::= <term>, { ‘+’|’-’, <term> };
+        /// </summary>
         private Node ParseExpression(Node node, VariableType type)
         {
             CheckIfOutOfTokens();
 
+            //A numeric expr can be made up of terms, but a string expr is made up of string factors only
+            //(we can't multilply, divide or subtract strings)
             if (type.Equals(VariableType.Integer))
                 node = ParseTerm(node);
             else if (type.Equals(VariableType.Boolean))
@@ -231,6 +286,7 @@ namespace esper_compiler_v3.src
             else
                 node = ParseFactor(node, VariableType.String);
 
+            //While a valid operator is found
             while (GetCurrentToken().Value.Equals("+") || (type.Equals(VariableType.Integer) &&
                                                            GetCurrentToken().Value.Equals("-")))
             {
@@ -251,6 +307,9 @@ namespace esper_compiler_v3.src
             return node;
         }
 
+        /// <summary>
+        /// Gets the type of the variable from a token's value
+        /// </summary>
         private VariableType GetVariableFromValue(String tokenValue)
         {
             switch (tokenValue.ToUpper())
@@ -266,6 +325,11 @@ namespace esper_compiler_v3.src
             return VariableType.Unknown;
         }
 
+        /// <summary>
+        /// To declare a variable
+        /// In EBNF:
+        /// 	         <DECLARE> ::= ( 'INT' | 'STRING' | 'BOOL'), <IDENTIFIER>;
+        /// </summary>
         private Node DeclareVariable(Node node)
         {
             node = new Node();
@@ -275,9 +339,11 @@ namespace esper_compiler_v3.src
             CheckIfOutOfTokens();
             node.Attributes[0] = GetCurrentToken().Value;
 
+            //Semantics - check variable name is valid
             if (!GetCurrentToken().Type.Equals(TokenType.Identifier) || IsNewVariableNameInvalid(GetCurrentToken().Value))
                 Console.WriteLine("Invalid variable name used in declaration");
 
+            //Add the variable to the list for future reference
             var varInfo = new VariableInfo();
             varInfo.Name = GetCurrentToken().Value;
 
@@ -290,6 +356,11 @@ namespace esper_compiler_v3.src
             return node;
         }
 
+        /// <summary>
+        /// To assign expression to a varibale
+        /// In EBNF:
+        ///	       <ASSIGN> ::= <IDENTIFIER>, '=', <EXPRESSION>;
+        /// </summary>
         private Node AssignExpression(Node node)
         {
             node.Value = "ASSIGN";
@@ -297,13 +368,16 @@ namespace esper_compiler_v3.src
             node.Left = new Node();
             node.Left.Value = GetCurrentToken().Value;
 
+            //Skip through '=' symbol
             TokenIndex += 2;
 
             node.Right = ParseExpression(node.Right, GetVariableType(node.Left.Value));
 
+            //Semantics - checks variable exists
             if (!VariableExists(node.Left.Value))
                 Console.WriteLine("Undeclared var name used in assignment");
 
+            //Additional node information to aid code gen
             if (GetVariableType(node.Left.Value).Equals(VariableType.Integer))
                 node.Attributes[0] = "INT";
             else if (GetVariableType(node.Left.Value).Equals(VariableType.Boolean))
@@ -314,6 +388,9 @@ namespace esper_compiler_v3.src
             return node;
         }
 
+        /// <summary>
+        /// <PRINT> ::= 'PRINT', ( <IDENTIFIER> | <CONSTANT> );
+        /// </summary>
         private Node ParsePrintFunction(Node node)
         {
             node = new Node();
@@ -322,7 +399,7 @@ namespace esper_compiler_v3.src
             CheckIfOutOfTokens();
             node.Attributes[0] = GetCurrentToken().Value;
 
-           //Semantic part
+            //Semantic part
 		    //Check for validity - argument should be variable or constant
 		    if (!GetCurrentToken().Type.Equals(TokenType.Identifier) && !GetCurrentToken().Type.Equals(TokenType.String)
 			    && !GetCurrentToken().Type.Equals(TokenType.Number))
@@ -348,7 +425,9 @@ namespace esper_compiler_v3.src
 		    return node;
         }
 
-        // <INPUT> ::= 'INPUT', <IDENTIFIER>
+        /// <summary>
+        /// <INPUT> ::= 'INPUT', <IDENTIFIER>
+        /// </summary>
         private Node ParseInputFunction(Node node)
         {
 
@@ -375,7 +454,9 @@ namespace esper_compiler_v3.src
             return node;
         }
 
-        //Parse a new statement
+        /// <summary>
+        /// Parse a new statement
+        /// </summary>
         private Node parseStatement(Node node) 
         {
 		
@@ -397,6 +478,9 @@ namespace esper_compiler_v3.src
 		    return node;
 	    }
 
+        /// <summary>
+        /// Parses all the tokens
+        /// </summary>
         public void ParseProgram()
         {
             //Last Token must be EOL so add one in case
@@ -434,31 +518,36 @@ namespace esper_compiler_v3.src
             RootNode.NullifyEmptyChildren();
         }
 
-        private void displayTree(Node node, String inner) {
+        /// <summary>
+        /// Outputs the parse tree in a readable format
+        /// </summary>
+        private void displayTree(Node node, String inner) 
+        {
+		    if (node == null)
+			    return;
 		
-		if (node == null)
-			return;
+		    Console.Write(inner + ">" + node.Value);
 		
-		Console.Write(inner + ">" + node.Value);
+		    String Attrib = "";
 		
-		String Attrib = "";
-		
-		foreach (String Attribute in node.Attributes)
-			if (Attribute != "")
-				Attrib += " " + Attribute;
+		    foreach (String Attribute in node.Attributes)
+			    if (Attribute != "")
+				    Attrib += " " + Attribute;
 				
-		if (Attrib != "")
-			Console.Write("  (Attributes: " + Attrib + ")");
+		    if (Attrib != "")
+			    Console.Write("  (Attributes: " + Attrib + ")");
 		
-		Console.Write("\n");
+		    Console.Write("\n");
 		
-		displayTree(node.Left, inner + "-");
-		displayTree(node.Right, inner + "-");
-	}
+		    displayTree(node.Left, inner + "-");
+		    displayTree(node.Right, inner + "-");
+	    }
 
+        /// <summary>
+        /// Displays the output of the parser
+        /// </summary>
         public void DisplayOutput()
         {
-
             displayTree(RootNode, "");
         }
     }
