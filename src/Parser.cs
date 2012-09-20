@@ -264,8 +264,11 @@ namespace esper_compiler_v3.src
         /// <summary>
         /// Checks if a given string is a conditional operator
         /// </summary>
-        private bool IsConditionalOperator(string str)
+        public static bool IsConditionalOperator(string str)
         {
+            if (str == null)
+                return false;
+
             return str.Equals("==") || str.Equals(">=") || str.Equals("<=") || str.Equals("!=");
         }
 

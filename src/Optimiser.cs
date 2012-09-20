@@ -15,6 +15,7 @@ namespace esper_compiler_v3.src
         public void Optimise()
         {
             OptimiseOperatorsAndValues();
+            OptimiseConditionals();
         }
 
         /// <summary>
@@ -66,6 +67,58 @@ namespace esper_compiler_v3.src
                     currentNode.Right = null;
                 }
             }
+        }
+
+        /// <summary>
+        /// b = 31 == 19 => b = 1
+        /// </summary>
+        private void OptimiseConditionals()
+        {
+            OptimiseConditionalsOfNode(Root);
+        }
+
+        private void OptimiseConditionalsOfNode(Node currentNode)
+        {
+            if (currentNode.Left != null)
+            {
+                OptimiseConditionalsOfNode(currentNode.Left);
+            }
+
+            if (currentNode.Right != null)
+            {
+                OptimiseConditionalsOfNode(currentNode.Right);
+            }
+
+            if (Parser.IsConditionalOperator(currentNode.Attributes[0]))
+            {
+                //If left node and right node are both values
+                Int32 leftValue;
+                Int32 rightValue;
+                if (currentNode.Left != null && Int32.TryParse(currentNode.Left.Value, out leftValue) &&
+                    currentNode.Right != null && Int32.TryParse(currentNode.Right.Value, out rightValue) &&
+                    currentNode.Left.Attributes[1] == "VALUE" && currentNode.Right.Attributes[1] == "VALUE")
+                {
+                    if (currentNode.Attributes[0] == "==")
+                        currentNode.Value = (leftValue == rightValue ? 1 : 0).ToString();
+                    else if (currentNode.Attributes[0] == "<=")
+                        currentNode.Value = (leftValue <= rightValue ? 1 : 0).ToString();
+                    else if (currentNode.Attributes[0] == ">=")
+                        currentNode.Value = (leftValue >= rightValue ? 1 : 0).ToString();
+                    else
+                        currentNode.Value = (leftValue != rightValue ? 1 : 0).ToString();
+
+                    currentNode.Attributes[1] = "VALUE";
+                    currentNode.Attributes[0] = currentNode.Attributes[2] = "";
+                    currentNode.Left = null;
+                    currentNode.Right = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// </summary>
+        private void OptimiseVariableNames()
+        {
         }
     }
 }
