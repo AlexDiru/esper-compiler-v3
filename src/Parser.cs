@@ -100,6 +100,8 @@ namespace esper_compiler_v3.src
 
             Keywords.Add("PRINT");
             Keywords.Add("INPUT");
+            Keywords.Add("IF");
+            Keywords.Add("END");
         }
 
         /// <summary>
@@ -460,7 +462,7 @@ namespace esper_compiler_v3.src
         /// <summary>
         /// Parse a new statement
         /// </summary>
-        private Node ParseStatement(Node node) 
+        private Node ParseStatement(Node node, ref Node currentNodeMarker) 
         {
 		
 		    //Call appropriate parse function according to first Token in the statement
@@ -473,13 +475,80 @@ namespace esper_compiler_v3.src
 			    node = ParsePrintFunction(node);
 		    else if (GetCurrentToken().Type.Equals(TokenType.Identifier) && Tokens[TokenIndex+1].Value.Equals("="))
 			    node = AssignExpression(node);
-		    //else if (GetCurrentToken().Value.Equals("IF"))
-			//    node = ParseIfStatement(node);
-		    else
-			    Console.WriteLine("INVALID STATEMENT on line " + GetCurrentToken().Line + ": " + GetCurrentToken().Value);
-		
+            else if (GetCurrentToken().Value.Equals("IF"))
+                node = ParseIfStatement(node, ref currentNodeMarker);
+            else
+            {
+                Console.WriteLine("INVALID STATEMENT on line " + GetCurrentToken().Line + ": " + GetCurrentToken().Value);
+                node = null;
+            }
+
 		    return node;
 	    }
+
+        /// <summary>
+        /// <IFSTATEMENT> := 'IF (' <CONDITION> ')' <STATEMENTS> 'END'
+        /// If statements within if statements do not work
+        /// </summary>
+        private Node ParseIfStatement(Node node, ref Node currentNodeMarker)
+        {
+            node = new Node();
+
+            node.Value = "IF";
+
+            TokenIndex++;
+
+            //Semantics
+            if (!GetCurrentToken().Value.Equals("("))
+                Console.Write("Enclose the condition in (...)");
+
+            TokenIndex++;
+
+            //Parse the condition in the left child of the IF node
+            node.Left = ParseCondition(node.Left);
+
+            //Semantics
+            if (!GetCurrentToken().Value.Equals(")"))
+                Console.Write("Enclose the condition in (...)");
+
+            //Skip the right bracket and new line
+            TokenIndex++;
+            TokenIndex++;
+
+            //Create a root class node for the top of the IF tree
+            Root root = new Root();
+            //Insert the IF node in the root
+            root.Insert(node.Value, node.Left);
+
+            //Mark the current node and set it
+            currentNodeMarker = node.Right;
+            Node currentNode = node.Right;
+
+            //Parse statements until END is found
+            while (!GetCurrentToken().Value.Equals("END"))
+            {
+                if (GetCurrentToken().Type.Equals(TokenType.EOL))
+                {
+                    TokenIndex++;
+                }
+                //Insert the statements in
+                currentNode = ParseStatement(currentNode, ref currentNodeMarker);
+
+                if (currentNode != null)
+                {
+                    root.Insert("STATEMENTS", currentNode);
+                    currentNode = currentNode.Right;
+                    currentNodeMarker = currentNode;
+                }
+
+                TokenIndex++;
+            }
+
+            //The final right node will always be empty, so remove it
+            root.NullifyEmptyChildren();
+
+            return (Node)root;
+        }
 
         /// <summary>
         /// Parses all the tokens
@@ -496,22 +565,30 @@ namespace esper_compiler_v3.src
             //Start at the first Token
             TokenIndex = 0;
 
-            for (int line = 0; line < LineCount; line++)
+            for (int line = 0; line < LineCount && GetCurrentToken() != null; line++)
             {
 
                 Node currentNode = new Node();
+                Node currentNodeMarker;
 
                 if (!GetCurrentToken().Type.Equals(TokenType.EOL))
                 {
+                    currentNodeMarker = null;
 
                     if (line == LineCount - 1)
                     {
-                        currentNode = ParseStatement(currentNode);
+                        currentNode = ParseStatement(currentNode, ref currentNodeMarker);
                         RootNode.InsertFinal(currentNode);
+
+                        if (currentNodeMarker != null)
+                            RootNode.CurrentNode = currentNodeMarker;
                     }
                     else
                     {
-                        RootNode.Insert("STATEMENTS", ParseStatement(currentNode));
+                        RootNode.Insert("STATEMENTS", ParseStatement(currentNode, ref currentNodeMarker));
+
+                        if (currentNodeMarker != null)
+                            RootNode.CurrentNode = currentNodeMarker;
                     }
                 }
 

@@ -8,7 +8,7 @@ namespace esper_compiler_v3.src
     /// <summary>
     /// Represents the node of a binary tree
     /// </summary>
-    class Node
+    public class Node
     {
         /// <summary>
         /// The value of the node
@@ -71,7 +71,7 @@ namespace esper_compiler_v3.src
         /// </summary>
         private bool IsEmpty()
         {
-            return Left == null && Right == null && Attributes[0] == "" && Attributes[1] == "" && Attributes[2] == "";
+            return Left == null && Right == null && String.IsNullOrEmpty(Attributes[0]) && String.IsNullOrEmpty(Attributes[1]) && String.IsNullOrEmpty(Attributes[2]);
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace esper_compiler_v3.src
                 if (Attribute != "")
                     Attrib += " " + Attribute;
 
-            if (Attrib != "")
+            if (Attrib != "" && node.Value != "STATEMENTS")
                 Console.Write("  (Attributes: " + Attrib + ")");
 
             Console.Write("\n");

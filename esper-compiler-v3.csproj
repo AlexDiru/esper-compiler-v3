@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\Generator.cs" />
     <Compile Include="src\Lexer.cs" />
     <Compile Include="src\Node.cs" />
     <Compile Include="src\Optimiser.cs" />

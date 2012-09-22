@@ -9,7 +9,7 @@ namespace esper_compiler_v3.src
     /// An extension of the node class, provides methods that the parser uses
     /// Keeps track of the current node the parser is on
     /// </summary>
-    class Root : Node
+    public class Root : Node
     {
         public Node CurrentNode;
 
